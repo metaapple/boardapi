@@ -32,6 +32,82 @@ Spring MVC, MyBatis, MySQL을 사용하는 게시판 REST API 예제 프로젝�
 - OpenWeatherMap API를 이용한 도시별 현재 날씨 조회
 - 전역 예외 처리와 404/error JSP
 
+## 주요 파일 관계도
+
+```mermaid
+flowchart TB
+    subgraph Config["설정"]
+        WebConfig["WebConfig.java<br/>DispatcherServlet, UTF-8 필터, multipart"]
+        ServletConfig["ServletConfig.java<br/>Controller scan, ViewResolver, 정적 리소스"]
+        RootConfig["RootConfig.java<br/>DataSource, MyBatis, TransactionManager"]
+        SwaggerConfig["SwaggerConfig.java<br/>Swagger UI/API 문서"]
+        AppProps["application.properties<br/>JDBC, OpenWeatherMap 설정"]
+        MyBatisConfig["mybatis-config.xml<br/>MyBatis 전역 설정"]
+    end
+
+    subgraph Web["웹 계층"]
+        HomeController["HomeController.java<br/>메인 JSP"]
+        BoardController["BoardController.java<br/>/api/board REST API"]
+        WeatherController["WeatherController.java<br/>/weather 화면"]
+        ApiAdvice["ApiExceptionAdvice.java<br/>REST 예외 응답"]
+        CommonAdvice["CommonExceptionAdvice.java<br/>JSP 예외 화면"]
+    end
+
+    subgraph Board["게시판 도메인"]
+        BoardService["BoardService.java<br/>서비스 인터페이스"]
+        BoardServiceImpl["BoardServiceImpl.java<br/>게시판 비즈니스 로직"]
+        BoardMapper["BoardMapper.java<br/>MyBatis Mapper 인터페이스"]
+        BoardMapperXml["BoardMapper.xml<br/>tbl_board SQL"]
+        BoardDTO["BoardDTO.java<br/>API 요청/응답 데이터"]
+        BoardVO["BoardVO.java<br/>DB 매핑 객체"]
+    end
+
+    subgraph View["화면/정적 리소스"]
+        IndexJsp["index.jsp"]
+        WeatherJsp["weather/today.jsp"]
+        Layouts["layouts/*.jsp"]
+        StaticFiles["resources/css, js, images"]
+    end
+
+    subgraph External["외부 시스템"]
+        MySQL[("MySQL<br/>scoula_db.tbl_board")]
+        OpenWeather["OpenWeatherMap API"]
+        SwaggerUi["swagger-ui.html"]
+    end
+
+    WebConfig --> ServletConfig
+    WebConfig --> RootConfig
+    WebConfig --> SwaggerConfig
+    RootConfig --> AppProps
+    RootConfig --> MyBatisConfig
+    RootConfig --> BoardMapper
+    ServletConfig --> HomeController
+    ServletConfig --> BoardController
+    ServletConfig --> WeatherController
+    ServletConfig --> StaticFiles
+    SwaggerConfig --> SwaggerUi
+
+    HomeController --> IndexJsp
+    WeatherController --> WeatherJsp
+    WeatherController --> AppProps
+    WeatherController --> OpenWeather
+    BoardController --> BoardService
+    BoardController --> BoardDTO
+    BoardService --> BoardServiceImpl
+    BoardServiceImpl --> BoardMapper
+    BoardServiceImpl --> BoardDTO
+    BoardServiceImpl --> BoardVO
+    BoardMapper --> BoardMapperXml
+    BoardMapperXml --> MySQL
+    AppProps --> MySQL
+
+    ApiAdvice -.-> BoardController
+    CommonAdvice -.-> HomeController
+    CommonAdvice -.-> WeatherController
+    Layouts --> IndexJsp
+    Layouts --> WeatherJsp
+```
+
 ## 프로젝트 구조
 
 ```text
