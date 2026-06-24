@@ -334,3 +334,77 @@ gradlew.bat test --tests org.scoula.board.service.BoardServiceImplTest
 - 파일 업로드 임시 위치는 `WebConfig.java`의 `c:/upload`로 설정되어 있습니다.
 - 날씨 화면을 사용하려면 `weather.api_key`에 유효한 OpenWeatherMap API 키가 필요합니다.
 - `application.properties`에 민감한 접속 정보나 API 키를 직접 커밋하지 않도록 주의합니다.
+
+## 추가 업데이트 내용
+
+최근 변경된 파일 기준으로 WebSocket 채팅 예제, AOP 로그 예제, 샘플 서비스 테스트가 추가되었습니다.
+
+### WebSocket/STOMP 채팅
+
+- `src/main/java/org/scoula/config/WebSocketConfig.java`
+  - `@EnableWebSocketMessageBroker`를 사용해 STOMP 기반 WebSocket 메시지 브로커를 활성화합니다.
+  - 클라이언트가 서버로 메시지를 보낼 때 사용하는 prefix는 `/app`입니다.
+  - 브라우저가 구독하는 topic prefix는 `/topic`입니다.
+  - WebSocket 접속 엔드포인트는 `/chat-app`입니다.
+
+- `src/main/java/org/scoula/controller/ChatController.java`
+  - `/app/hello`로 들어온 입장 메시지를 `/topic/greetings`로 브로드캐스팅합니다.
+  - `/app/chat`으로 들어온 채팅 메시지를 `/topic/chat`으로 브로드캐스팅합니다.
+
+- `src/main/java/org/scoula/domain/GreetingMessage.java`
+  - 입장 메시지에 사용하는 DTO입니다.
+  - `name` 필드를 가집니다.
+
+- `src/main/java/org/scoula/domain/ChatMessage.java`
+  - 채팅 메시지에 사용하는 DTO입니다.
+  - `name`, `content` 필드를 가집니다.
+
+- `src/main/webapp/WEB-INF/views/index.jsp`
+  - STOMP 채팅 테스트 화면으로 변경되었습니다.
+  - 이름 입력, WebSocket 연결/해제, 메시지 입력/전송, 수신 메시지 목록 표시 UI를 포함합니다.
+
+- `src/main/webapp/resources/js/stomp.js`
+  - STOMP 클라이언트를 생성하고 `ws://localhost:8080/chat-app`으로 연결합니다.
+  - 연결 후 `/topic/greetings`, `/topic/chat`을 구독합니다.
+  - 연결 성공 시 `/app/hello`로 입장 메시지를 전송합니다.
+  - 메시지 전송 버튼 클릭 시 `/app/chat`으로 채팅 메시지를 전송합니다.
+
+채팅 메시지 흐름:
+
+```text
+브라우저 stomp.js
+  -> ws://localhost:8080/chat-app 연결
+  -> /app/hello 또는 /app/chat 발행
+  -> ChatController 처리
+  -> /topic/greetings 또는 /topic/chat 브로드캐스팅
+  -> 구독 중인 브라우저 화면에 메시지 출력
+```
+
+주의: WAR를 `boardapi` 컨텍스트 경로로 배포하는 경우 WebSocket URL은 배포 환경에 맞게 `/boardapi/chat-app` 형태가 필요할 수 있습니다. 현재 `stomp.js`는 `ws://localhost:8080/chat-app`을 기준으로 작성되어 있습니다.
+
+### AOP 로그 예제
+
+- `src/main/java/org/scoula/advice/LogAdvice.java`
+  - `org.scoula.sample.service.SampleService` 계열 메서드 실행을 대상으로 로그를 출력합니다.
+  - 메서드 실행 전 로그, 특정 파라미터 로그, 예외 로그, 실행 시간 로그를 확인할 수 있습니다.
+
+- `src/main/java/org/scoula/config/RootConfig.java`
+  - `org.scoula.sample.service`, `org.scoula.advice` 패키지를 컴포넌트 스캔 대상에 추가했습니다.
+  - `@EnableAspectJAutoProxy`로 AOP 프록시 기능을 활성화합니다.
+
+### Web 설정 변경
+
+- `src/main/java/org/scoula/config/WebConfig.java`
+  - Servlet 설정 클래스 목록에 `WebSocketConfig.class`를 추가해 WebSocket 설정이 DispatcherServlet 환경에 등록되도록 했습니다.
+
+### 샘플 서비스 테스트
+
+- `src/test/java/org/scoula/sample/service/SampleServiceImplTest.java`
+  - `RootConfig` 기반 Spring 테스트로 `SampleService`를 주입받아 실행합니다.
+  - `doAdd("123", "456")` 정상 케이스와 `doAdd("123", "ABC")` 예외 케이스를 실행해 AOP 로그 동작을 확인할 수 있습니다.
+
+샘플 서비스 테스트 실행:
+
+```bash
+gradlew.bat test --tests org.scoula.sample.service.SampleServiceImplTest
+```

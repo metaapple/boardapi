@@ -17,9 +17,11 @@ import javax.sql.DataSource;
 @PropertySource({"classpath:/application.properties"})
 @MapperScan(basePackages = {"org.scoula.board.mapper"})
 @ComponentScan(basePackages={
-        "org.scoula.board.service"
+        "org.scoula.board.service",
+        "org.scoula.sample.service",
+        "org.scoula.advice"
 })
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy //aop활성화
 public class RootConfig {
     //프로젝트 전체에서 사용할 중요한 싱글톤 빈 생성 정의
     @Autowired

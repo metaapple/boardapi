@@ -28,7 +28,8 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     protected Class<?>[] getServletConfigClasses() {
         return new Class[]{
                 ServletConfig.class,
-                SwaggerConfig.class
+                SwaggerConfig.class,
+                WebSocketConfig.class
         };
     }
 
