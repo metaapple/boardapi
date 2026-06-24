@@ -156,8 +156,14 @@ boardapi/
 |   |   |   |   |-- RootConfig.java
 |   |   |   |   |-- ServletConfig.java
 |   |   |   |   |-- SwaggerConfig.java
-|   |   |   |   `-- WebConfig.java
-|   |   |   |-- controller/HomeController.java
+|   |   |   |   |-- WebConfig.java
+|   |   |   |   `-- WebSocketConfig.java
+|   |   |   |-- controller/
+|   |   |   |   |-- HomeController.java
+|   |   |   |   `-- ChatController.java
+|   |   |   |-- domain/
+|   |   |   |   |-- ChatMessage.java
+|   |   |   |   `-- GreetingMessage.java
 |   |   |   |-- exception/
 |   |   |   |   |-- ApiExceptionAdvice.java
 |   |   |   |   `-- CommonExceptionAdvice.java
@@ -176,6 +182,9 @@ boardapi/
 |   |       |   |-- css/main.css
 |   |       |   |-- images/
 |   |       |   `-- js/
+|   |       |       |-- board.js
+|   |       |       |-- main.js
+|   |       |       `-- stomp.js
 |   |       `-- WEB-INF/views/
 |   |           |-- index.jsp
 |   |           |-- custom404.jsp
@@ -186,7 +195,8 @@ boardapi/
 |       |-- board/mapper/BoardMapperTest.java
 |       |-- board/service/BoardServiceImplTest.java
 |       |-- config/RootConfigTest.java
-|       `-- persistence/JDBCTests.java
+|       |-- persistence/JDBCTests.java
+|       `-- sample/service/SampleServiceImplTest.java
 `-- gradle/wrapper/
 ```
 
